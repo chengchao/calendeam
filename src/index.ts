@@ -38,27 +38,49 @@ app.post('/api/users', async (c) => {
 	const adapter = new PrismaD1(c.env.DB);
 	const prisma = new PrismaClient({ adapter });
 
+	const { email } = await c.req.json();
+
 	const user = await prisma.user.create({
-		data: {},
+		data: {
+			email,
+		},
 	});
 
 	return c.json(user);
 });
 
-app.put('/api/users/:id', async (c) => {
+app.post('/api/steam-profiles/', async (c) => {
 	const adapter = new PrismaD1(c.env.DB);
 	const prisma = new PrismaClient({ adapter });
 
-	const { steamId } = await c.req.json();
+	const { userId, steamId } = await c.req.json();
 
-	const user = await prisma.user.update({
-		where: { id: c.req.param('id') },
+	const steamProfile = await prisma.steamProfile.create({
 		data: {
-			steamId: steamId,
+			userId,
+			steamId,
 		},
 	});
 
-	return c.json(user);
+	return c.json(steamProfile);
+});
+
+app.put('/api/steam-profiles/:id', async (c) => {
+	const adapter = new PrismaD1(c.env.DB);
+	const prisma = new PrismaClient({ adapter });
+
+	const { userId, steamId } = await c.req.json();
+	const id = c.req.param('id');
+
+	const steamProfile = await prisma.steamProfile.update({
+		where: { id },
+		data: {
+			userId,
+			steamId,
+		},
+	});
+
+	return c.json(steamProfile);
 });
 
 export default {

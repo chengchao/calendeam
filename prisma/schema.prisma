@@ -16,8 +16,20 @@ datasource db {
 }
 
 model User {
+  id           String         @id @default(cuid())
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  email        String?        @unique
+  SteamProfile SteamProfile[]
+}
+
+model SteamProfile {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  steamId   String?  @unique
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  steamId   String
+
+  @@unique([userId, steamId])
 }
