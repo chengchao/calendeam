@@ -84,20 +84,19 @@ app.put('/api/steam-profiles/:id', async (c) => {
 });
 
 export default {
-	// async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext) {
-	// 	try {
-	// 		// Fetch data from DB
-	// 		const adapter = new PrismaD1(env.DB);
-	// 		const prisma = new PrismaClient({ adapter });
+	async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext) {
+		// try {
+		// 	// Fetch data from DB
+		// 	const adapter = new PrismaD1(env.DB);
+		// 	const prisma = new PrismaClient({ adapter });
+		// 	// Send data to queue
+		// 	await env.STEAM_USER_QUEUE.send({}, { delaySeconds: 60 * 30 });
+		// } catch (e) {
+		// 	console.error(e);
+		// }
+	},
 
-	// 		// Send data to queue
-	// 		await env.STEAM_USER_QUEUE.send({}, { delaySeconds: 60 * 30 });
-	// 	} catch (e) {
-	// 		console.error(e);
-	// 	}
-	// },
-
-	// async queue(batch: MessageBatch, env: Env, ctx: ExecutionContext) {},
+	async queue(batch: MessageBatch, env: Env, ctx: ExecutionContext) {},
 
 	fetch: app.fetch,
 } satisfies ExportedHandler<Env>;
