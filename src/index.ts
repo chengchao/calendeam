@@ -51,9 +51,9 @@ app.post('/api/users', async (c) => {
 		return c.json(user);
 	} catch (e) {
 		if (e instanceof Error) {
-			throw new HTTPException(400, { message: e.message });
+			throw new HTTPException(400, { message: e.message, cause: e });
 		} else {
-			throw new HTTPException(400, { message: 'An unknown error occurred' });
+			throw new HTTPException(400, { message: 'An unknown error occurred', cause: e });
 		}
 	}
 });
@@ -75,9 +75,9 @@ app.post('/api/steam-profiles/', async (c) => {
 		return c.json(steamProfile);
 	} catch (e) {
 		if (e instanceof Error) {
-			throw new HTTPException(400, { message: e.message });
+			throw new HTTPException(400, { message: e.message, cause: e });
 		} else {
-			throw new HTTPException(400, { message: 'An unknown error occurred' });
+			throw new HTTPException(400, { message: 'An unknown error occurred', cause: e });
 		}
 	}
 });
@@ -101,9 +101,9 @@ app.put('/api/steam-profiles/:id', async (c) => {
 		return c.json(steamProfile);
 	} catch (e) {
 		if (e instanceof Error) {
-			throw new HTTPException(400, { message: e.message });
+			throw new HTTPException(400, { message: e.message, cause: e });
 		} else {
-			throw new HTTPException(400, { message: 'An unknown error occurred' });
+			throw new HTTPException(400, { message: 'An unknown error occurred', cause: e });
 		}
 	}
 });
