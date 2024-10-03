@@ -16,6 +16,7 @@ import { PrismaClient } from '@prisma/client';
 
 import { Hono } from 'hono';
 import { bearerAuth } from 'hono/bearer-auth';
+import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 
@@ -50,9 +51,9 @@ app.post('/api/users', async (c) => {
 		return c.json(user);
 	} catch (e) {
 		if (e instanceof Error) {
-			return c.json({ error: e.message });
+			throw new HTTPException(400, { message: e.message });
 		} else {
-			return c.json({ error: 'An unknown error occurred' });
+			throw new HTTPException(400, { message: 'An unknown error occurred' });
 		}
 	}
 });
@@ -74,9 +75,9 @@ app.post('/api/steam-profiles/', async (c) => {
 		return c.json(steamProfile);
 	} catch (e) {
 		if (e instanceof Error) {
-			return c.json({ error: e.message });
+			throw new HTTPException(400, { message: e.message });
 		} else {
-			return c.json({ error: 'An unknown error occurred' });
+			throw new HTTPException(400, { message: 'An unknown error occurred' });
 		}
 	}
 });
@@ -100,9 +101,9 @@ app.put('/api/steam-profiles/:id', async (c) => {
 		return c.json(steamProfile);
 	} catch (e) {
 		if (e instanceof Error) {
-			return c.json({ error: e.message });
+			throw new HTTPException(400, { message: e.message });
 		} else {
-			return c.json({ error: 'An unknown error occurred' });
+			throw new HTTPException(400, { message: 'An unknown error occurred' });
 		}
 	}
 });
