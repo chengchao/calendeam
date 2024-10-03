@@ -40,13 +40,21 @@ app.post('/api/users', async (c) => {
 
 	const { email } = await c.req.json();
 
-	const user = await prisma.user.create({
-		data: {
-			email,
-		},
-	});
+	try {
+		const user = await prisma.user.create({
+			data: {
+				email,
+			},
+		});
 
-	return c.json(user);
+		return c.json(user);
+	} catch (e) {
+		if (e instanceof Error) {
+			return c.json({ error: e.message });
+		} else {
+			return c.json({ error: 'An unknown error occurred' });
+		}
+	}
 });
 
 app.post('/api/steam-profiles/', async (c) => {
@@ -55,14 +63,22 @@ app.post('/api/steam-profiles/', async (c) => {
 
 	const { userId, steamId } = await c.req.json();
 
-	const steamProfile = await prisma.steamProfile.create({
-		data: {
-			userId,
-			steamId,
-		},
-	});
+	try {
+		const steamProfile = await prisma.steamProfile.create({
+			data: {
+				userId,
+				steamId,
+			},
+		});
 
-	return c.json(steamProfile);
+		return c.json(steamProfile);
+	} catch (e) {
+		if (e instanceof Error) {
+			return c.json({ error: e.message });
+		} else {
+			return c.json({ error: 'An unknown error occurred' });
+		}
+	}
 });
 
 app.put('/api/steam-profiles/:id', async (c) => {
@@ -72,15 +88,23 @@ app.put('/api/steam-profiles/:id', async (c) => {
 	const { userId, steamId } = await c.req.json();
 	const id = c.req.param('id');
 
-	const steamProfile = await prisma.steamProfile.update({
-		where: { id },
-		data: {
-			userId,
-			steamId,
-		},
-	});
+	try {
+		const steamProfile = await prisma.steamProfile.update({
+			where: { id },
+			data: {
+				userId,
+				steamId,
+			},
+		});
 
-	return c.json(steamProfile);
+		return c.json(steamProfile);
+	} catch (e) {
+		if (e instanceof Error) {
+			return c.json({ error: e.message });
+		} else {
+			return c.json({ error: 'An unknown error occurred' });
+		}
+	}
 });
 
 export default {
