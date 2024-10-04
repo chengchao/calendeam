@@ -81,7 +81,7 @@ app.delete('api/users/:id', async (c) => {
 	}
 });
 
-app.get('/api/users/:userId/steam-profiles/', async (c) => {
+app.get('/api/users/:userId/steam-profiles', async (c) => {
 	const adapter = new PrismaD1(c.env.DB);
 	const prisma = new PrismaClient({ adapter });
 
@@ -96,7 +96,7 @@ app.get('/api/users/:userId/steam-profiles/', async (c) => {
 	return c.json(steamProfiles);
 });
 
-app.post('/api/steam-profiles/', async (c) => {
+app.post('/api/steam-profiles', async (c) => {
 	const adapter = new PrismaD1(c.env.DB);
 	const prisma = new PrismaClient({ adapter });
 
