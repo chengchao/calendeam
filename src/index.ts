@@ -148,6 +148,28 @@ app.put('/api/steam-profiles/:id', async (c) => {
 	}
 });
 
+app.delete('/api/steam-profiles/:id', async (c) => {
+	const adapter = new PrismaD1(c.env.DB);
+	const prisma = new PrismaClient({ adapter });
+
+	const id = c.req.param('id');
+
+	try {
+		const steamProfile = await prisma.steamProfile.delete({
+			where: { id },
+		});
+
+		return c.json(steamProfile);
+	} catch (e) {
+		console.error(e);
+		if (e instanceof Error) {
+			throw new HTTPException(400, { message: e.message, cause: e });
+		} else {
+			throw new HTTPException(400, { message: 'An unknown error occurred', cause: e });
+		}
+	}
+});
+
 export default {
 	async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext) {
 		// try {
