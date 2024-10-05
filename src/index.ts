@@ -19,6 +19,8 @@ import { bearerAuth } from 'hono/bearer-auth';
 import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
+import { WishlistItem, wishlistItemsSchema } from './types';
+import { steamWishlistToIcs } from './utils/steamWishlistToIcs';
 
 const app = new Hono<{ Bindings: Env }>();
 app.use('*', prettyJSON(), logger(), async (c, next) => {
@@ -172,18 +174,92 @@ app.delete('/api/steam-profiles/:id', async (c) => {
 
 export default {
 	async scheduled(controller: ScheduledController, env: Env, ctx: ExecutionContext) {
-		// try {
-		// 	// Fetch data from DB
-		// 	const adapter = new PrismaD1(env.DB);
-		// 	const prisma = new PrismaClient({ adapter });
-		// 	// Send data to queue
-		// 	await env.STEAM_USER_QUEUE.send({}, { delaySeconds: 60 * 30 });
-		// } catch (e) {
-		// 	console.error(e);
-		// }
+		const batchSize = parseInt(env.BATCH_SIZE, 10);
+		const delaySeconds = parseInt(env.DELAY_SECONDS, 10);
+		console.log(`Scheduled task started, batchSize: ${batchSize}, delaySeconds: ${delaySeconds}`);
+
+		try {
+			// Fetch data from DB
+			const adapter = new PrismaD1(env.DB);
+			const prisma = new PrismaClient({ adapter });
+
+			let queryResults: {
+				id: string;
+				userId: string;
+				steamId: string;
+			}[];
+
+			const userCount = await prisma.user.count();
+			console.log('Total users:', userCount);
+
+			const steamProfileCount = await prisma.steamProfile.count();
+			console.log('Total steam profiles:', steamProfileCount);
+
+			queryResults = await prisma.steamProfile.findMany({
+				take: batchSize,
+				orderBy: {
+					updatedAt: 'asc',
+				},
+			});
+			console.log('Sending data to queue:', queryResults);
+
+			let n = 0;
+
+			while (queryResults.length > 0) {
+				// Send data to queue
+				for (const result of queryResults) {
+					await env.STEAM_USER_QUEUE.send(result, { delaySeconds: delaySeconds * n });
+				}
+				n++;
+
+				const lastSteamProfileInResults = queryResults[queryResults.length - 1];
+				const myCursor = lastSteamProfileInResults.id;
+
+				queryResults = await prisma.steamProfile.findMany({
+					cursor: {
+						id: myCursor,
+					},
+					take: batchSize,
+					orderBy: {
+						updatedAt: 'asc',
+					},
+				});
+			}
+		} catch (e) {
+			console.error(e);
+		}
 	},
 
-	async queue(batch: MessageBatch, env: Env, ctx: ExecutionContext) {},
+	async queue(batch: MessageBatch<Message>, env: Env, ctx: ExecutionContext) {
+		const adapter = new PrismaD1(env.DB);
+		const prisma = new PrismaClient({ adapter });
+
+		await Promise.all(
+			batch.messages.map(async (message) => {
+				const { id, userId, steamId } = message as Message;
+				const response = await fetch(`https://store.steampowered.com/wishlist/profiles/${steamId}/wishlistdata?p=0`);
+				if (!response.ok) {
+					console.error(`Failed to fetch data for steamId: ${steamId}`);
+					return null;
+				}
+
+				const data = await response.json();
+				const items: WishlistItem[] = wishlistItemsSchema.parse(data);
+
+				const ics = steamWishlistToIcs(items);
+				await env.BUCKET.put(`wishlists/${steamId}.ics`, ics);
+
+				const steamProfile = await prisma.steamProfile.update({
+					where: { id },
+					data: {
+						releaseDateIcsKey: `wishlists/${steamId}.ics`,
+					},
+				});
+
+				return steamProfile;
+			})
+		);
+	},
 
 	fetch: app.fetch,
 } satisfies ExportedHandler<Env>;
