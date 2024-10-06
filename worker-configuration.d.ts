@@ -12,5 +12,6 @@ interface Env {
 	BUCKET: R2Bucket;
 	DELAY_SECONDS: string;
 	DB: D1Database;
+	SCRAPING_FISH_API_KEY: string;
 	STEAM_USER_QUEUE: Queue<Message>;
 }

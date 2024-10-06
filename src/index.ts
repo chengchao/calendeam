@@ -251,7 +251,12 @@ export default {
 
 					const wishlistUrl = `https://store.steampowered.com/wishlist/profiles/${steamId}/wishlistdata?p=0`;
 					console.log('Fetching data from:', wishlistUrl);
-					const response = await fetch(wishlistUrl);
+
+					const url = new URL('https://scraping.narf.ai/api/v1');
+					url.searchParams.append('api_key', env.SCRAPING_FISH_API_KEY);
+					url.searchParams.append('url', wishlistUrl);
+
+					const response = await fetch(url);
 					if (!response.ok) {
 						const text = await response.text();
 						console.error({ message: `Failed to fetch data for steamId: ${steamId}; ${text}` });
