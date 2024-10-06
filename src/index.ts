@@ -23,7 +23,33 @@ import { WishlistItem, wishlistItemsSchema } from './types';
 import { steamWishlistToIcs } from './utils/steamWishlistToIcs';
 
 const app = new Hono<{ Bindings: Env }>();
-app.use('*', prettyJSON(), logger(), async (c, next) => {
+
+app.get('/wishlists/steam-profiles/:steamProfileId/ics/:fileName', async (c) => {
+	const adapter = new PrismaD1(c.env.DB);
+	const prisma = new PrismaClient({ adapter });
+
+	const steamProfileId = c.req.param('steamProfileId');
+	const fileName = c.req.param('fileName');
+	const steamProfile = await prisma.steamProfile.findFirst({
+		where: {
+			steamId: steamProfileId,
+		},
+	});
+	if (steamProfile === null) {
+		throw new HTTPException(404, { message: 'Steam profile not found' });
+	}
+	if (steamProfile.releaseDateIcsKey?.split('/')[1] !== fileName) {
+		throw new HTTPException(404, { message: 'Ics not found' });
+	}
+	const object = await c.env.BUCKET.get(steamProfile.releaseDateIcsKey);
+	if (object === null) {
+		throw new HTTPException(404, { message: 'Ics not found' });
+	}
+	const ics = await object.text();
+	return c.text(ics);
+});
+
+app.use('/api/*', prettyJSON(), logger(), async (c, next) => {
 	const auth = bearerAuth({ token: c.env.API_KEY });
 	return auth(c, next);
 });
