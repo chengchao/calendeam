@@ -255,6 +255,7 @@ export default {
 					const url = new URL('https://scraping.narf.ai/api/v1');
 					url.searchParams.append('api_key', env.SCRAPING_FISH_API_KEY);
 					url.searchParams.append('url', wishlistUrl);
+					console.log('Fetching data from proxy:', url.toString());
 
 					const response = await fetch(url);
 					if (!response.ok) {
