@@ -7,7 +7,7 @@ export const wishlistItemSchema = z.object({
 	review_desc: z.string(),
 	reviews_total: z.string(),
 	reviews_percent: z.number(),
-	release_date: z.string().pipe(z.coerce.number()),
+	release_date: z.union([z.string(), z.number()]).pipe(z.coerce.number()),
 	release_string: z.string(),
 	platform_icons: z.string(),
 	subs: z.array(
@@ -15,7 +15,7 @@ export const wishlistItemSchema = z.object({
 			packageid: z.number(),
 			bundleid: z.null(),
 			discount_block: z.string(),
-			discount_pct: z.number(),
+			discount_pct: z.number().nullable().optional(),
 			price: z.string(),
 		})
 	),
@@ -28,12 +28,12 @@ export const wishlistItemSchema = z.object({
 	rank: z.number(),
 	tags: z.array(z.string()),
 	is_free_game: z.boolean(),
-	deck_compat: z.string(),
+	deck_compat: z.union([z.string(), z.number()]).pipe(z.coerce.number()),
 	win: z.number().optional(),
 	mac: z.number().optional(),
 	linux: z.number().optional(),
 });
 
-export const wishlistItemsSchema = z.array(wishlistItemSchema);
+export const wishlistItemsSchema = z.record(wishlistItemSchema);
 
 export type WishlistItem = z.infer<typeof wishlistItemSchema>;

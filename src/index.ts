@@ -238,34 +238,49 @@ export default {
 	},
 
 	async queue(batch: MessageBatch<Message>, env: Env, ctx: ExecutionContext) {
+		console.log('Queued task started');
+
 		const adapter = new PrismaD1(env.DB);
 		const prisma = new PrismaClient({ adapter });
 
-		await Promise.all(
-			batch.messages.map(async (message) => {
-				const { id, userId, steamId } = message as Message;
-				const response = await fetch(`https://store.steampowered.com/wishlist/profiles/${steamId}/wishlistdata?p=0`);
-				if (!response.ok) {
-					console.error(`Failed to fetch data for steamId: ${steamId}`);
-					return null;
-				}
+		try {
+			await Promise.all(
+				batch.messages.map(async (message) => {
+					const { id, userId, steamId } = message.body as Message;
+					console.log('Processing message:', id, userId, steamId);
 
-				const data = await response.json();
-				const items: WishlistItem[] = wishlistItemsSchema.parse(data);
+					const wishlistUrl = `https://store.steampowered.com/wishlist/profiles/${steamId}/wishlistdata?p=0`;
+					console.log('Fetching data from:', wishlistUrl);
+					const response = await fetch(wishlistUrl);
+					if (!response.ok) {
+						const text = await response.text();
+						console.error({ message: 'Failed to fetch data for steamId', steamId, text });
+						return null;
+					}
 
-				const ics = steamWishlistToIcs(items);
-				await env.BUCKET.put(`wishlists/${steamId}.ics`, ics);
+					const data = await response.json();
+					const items = wishlistItemsSchema.parse(data);
 
-				const steamProfile = await prisma.steamProfile.update({
-					where: { id },
-					data: {
-						releaseDateIcsKey: `wishlists/${steamId}.ics`,
-					},
-				});
+					const ics = steamWishlistToIcs(items);
+					await env.BUCKET.put(`wishlists/${steamId}.ics`, ics);
 
-				return steamProfile;
-			})
-		);
+					const steamProfile = await prisma.steamProfile.update({
+						where: { id },
+						data: {
+							releaseDateIcsKey: `wishlists/${steamId}.ics`,
+						},
+					});
+
+					return steamProfile;
+				})
+			);
+		} catch (e) {
+			if (e instanceof Error) {
+				console.error({ message: e.message });
+			} else {
+				console.error(e);
+			}
+		}
 	},
 
 	fetch: app.fetch,
