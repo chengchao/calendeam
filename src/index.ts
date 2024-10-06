@@ -254,7 +254,7 @@ export default {
 					const response = await fetch(wishlistUrl);
 					if (!response.ok) {
 						const text = await response.text();
-						console.error({ message: 'Failed to fetch data for steamId', steamId, text });
+						console.error({ message: `Failed to fetch data for steamId: ${steamId}; ${text}` });
 						return null;
 					}
 
@@ -274,7 +274,8 @@ export default {
 					return steamProfile;
 				})
 			);
-			console.log(`Processed messages: ${steamProfiles.length}`);
+			const notNullSteamProfiles = steamProfiles.filter((profile) => profile !== null);
+			console.log(`Processed messages: ${notNullSteamProfiles.length}`);
 		} catch (e) {
 			if (e instanceof Error) {
 				console.error({ message: e.message });
