@@ -208,7 +208,9 @@ export default {
 			while (queryResults.length > 0) {
 				// Send data to queue
 				for (const result of queryResults) {
+					console.log(`Sending single data to queue: ${JSON.stringify(result, null, 2)}`);
 					await env.STEAM_USER_QUEUE.send(result, { delaySeconds: delaySeconds * n });
+					console.log(`Sent single data to queue: ${JSON.stringify(result, null, 2)}`);
 				}
 				n++;
 
@@ -220,13 +222,18 @@ export default {
 						id: myCursor,
 					},
 					take: batchSize,
+					skip: 1, // Skip the cursor
 					orderBy: {
 						updatedAt: 'asc',
 					},
 				});
 			}
 		} catch (e) {
-			console.error(e);
+			if (e instanceof Error) {
+				console.error({ message: e.message });
+			} else {
+				console.error(e);
+			}
 		}
 	},
 
