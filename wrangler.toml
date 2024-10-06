@@ -105,6 +105,7 @@ max_retries = 3
 [[r2_buckets]]
 binding = "BUCKET"
 bucket_name = "calendeam"
+preview_bucket_name = "calendeam-preview"
 
 # Bind another Worker service. Use this binding to call another Worker without network overhead.
 # Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings

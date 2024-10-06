@@ -244,7 +244,7 @@ export default {
 		const prisma = new PrismaClient({ adapter });
 
 		try {
-			await Promise.all(
+			const steamProfiles = await Promise.all(
 				batch.messages.map(async (message) => {
 					const { id, userId, steamId } = message.body as Message;
 					console.log('Processing message:', id, userId, steamId);
@@ -274,6 +274,7 @@ export default {
 					return steamProfile;
 				})
 			);
+			console.log(`Processed messages: ${steamProfiles.length}`);
 		} catch (e) {
 			if (e instanceof Error) {
 				console.error({ message: e.message });
