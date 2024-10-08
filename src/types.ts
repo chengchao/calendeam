@@ -12,8 +12,8 @@ export const wishlistItemSchema = z.object({
 	platform_icons: z.string(),
 	subs: z.array(
 		z.object({
-			packageid: z.number(),
-			bundleid: z.null(),
+			packageid: z.number().nullable(),
+			bundleid: z.number().nullable(),
 			discount_block: z.string(),
 			discount_pct: z.number().nullable().optional(),
 			price: z.string(),
