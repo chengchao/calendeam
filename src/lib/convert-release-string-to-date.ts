@@ -61,7 +61,8 @@ export function convertReleaseStringToDate(releaseString: string): Date {
 		return lastDayOfYear(new Date(parseInt(releaseString, 10)));
 	}
 
-	const [first, second] = releaseString.split(' ').slice(0, 2);
+	const [first, second] = releaseString.split(', ').slice(0, 2);
+	console.log(`first: ${first}, second: ${second}`);
 
 	if (first === 'Coming') {
 		return lastDayOfYear(new Date());
@@ -83,9 +84,11 @@ export function convertReleaseStringToDate(releaseString: string): Date {
 		return lastDayOfQuarter(new Date(parseInt(second, 10), 9, 1));
 	}
 
-	// if , is in the first string, it's a date
-	if (first.includes(',')) {
-		const [firstPart, secondPart] = first.split(',');
+	// if space is in the first string, it's a date
+	if (first.includes(' ')) {
+		const [firstPart, secondPart] = first.split(' ');
+		console.log(`firstPart: ${firstPart}, secondPart: ${secondPart}`);
+
 		// if firstPart is a number, it's a day
 		if (!isNaN(parseInt(firstPart, 10))) {
 			const [day, month] = [firstPart, secondPart];
