@@ -58,37 +58,22 @@ function getMonthFromString(month: string): number {
  * @returns A Date object
  */
 export function convertReleaseStringToDate(releaseString: string): Date | null {
-	// if releaseString is 'To be announced', return last day of the current year
+	// if releaseString is invalid, return last day of the current year
 	if (invalidReleaseStrings.includes(releaseString)) {
 		return null;
 	}
 
 	// if no space in releaseString, it's a year
-	if (!releaseString.includes(' ')) {
-		return lastDayOfYear(new Date(parseInt(releaseString, 10)));
+	if (!isNaN(Number(releaseString))) {
+		console.log(`releaseString is only a year: ${parseInt(releaseString, 10)}`);
+		return lastDayOfYear(new Date(parseInt(releaseString, 10), 0, 1));
 	}
 
-	const [first, second] = releaseString.split(', ').slice(0, 2);
-	console.log(`first: ${first}, second: ${second}`);
+	// 'Jan 4, 2025' or '27 May, 2010'
+	if (releaseString.includes(', ')) {
+		const [first, second] = releaseString.split(', ').slice(0, 2);
+		console.log(`first: ${first}, second: ${second}`);
 
-	if (first === 'Q1') {
-		return lastDayOfQuarter(new Date(parseInt(second, 10), 0, 1));
-	}
-
-	if (first === 'Q2') {
-		return lastDayOfQuarter(new Date(parseInt(second, 10), 3, 1));
-	}
-
-	if (first === 'Q3') {
-		return lastDayOfQuarter(new Date(parseInt(second, 10), 6, 1));
-	}
-
-	if (first === 'Q4') {
-		return lastDayOfQuarter(new Date(parseInt(second, 10), 9, 1));
-	}
-
-	// if space is in the first string, it's a date
-	if (first.includes(' ')) {
 		const [firstPart, secondPart] = first.split(' ');
 		console.log(`firstPart: ${firstPart}, secondPart: ${secondPart}`);
 
@@ -105,8 +90,31 @@ export function convertReleaseStringToDate(releaseString: string): Date | null {
 			if (e instanceof Error) {
 				console.error({ message: e.message });
 				throw new Error(`Failed to parse date: ${releaseString}, error: ${e.message}`);
+			} else {
+				console.error({ message: e });
+				throw new Error(`Failed to parse date: ${releaseString}, error: ${e}`);
 			}
 		}
+	}
+
+	// 'Q1 2025', 'January 2025'
+	const [first, second] = releaseString.split(' ').slice(0, 2);
+	console.log(`first: ${first}, second: ${second}`);
+
+	if (first === 'Q1') {
+		return lastDayOfQuarter(new Date(parseInt(second, 10), 0, 1));
+	}
+
+	if (first === 'Q2') {
+		return lastDayOfQuarter(new Date(parseInt(second, 10), 3, 1));
+	}
+
+	if (first === 'Q3') {
+		return lastDayOfQuarter(new Date(parseInt(second, 10), 6, 1));
+	}
+
+	if (first === 'Q4') {
+		return lastDayOfQuarter(new Date(parseInt(second, 10), 9, 1));
 	}
 
 	if (first in months) {

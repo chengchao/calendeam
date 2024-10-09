@@ -20,8 +20,17 @@ import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 import { updateWishlist } from './lib/update-wishlist';
+import { convertReleaseStringToDate } from './lib/convert-release-string-to-date';
 
 const app = new Hono<{ Bindings: Env }>();
+
+// app.get('/test', async (c) => {
+// 	const dates = ['Coming soon', 'Q1 2025', 'Jan 4, 2025', 'January 2025', '2025', '27 May, 2010', 'To be announced'].map((v) =>
+// 		convertReleaseStringToDate(v)
+// 	);
+// 	const text = dates.map((v) => v?.toString()).join(',\n');
+// 	return c.text(text);
+// });
 
 app.get('/wishlists/steam-profiles/:steamProfileId/ics/:fileName', async (c) => {
 	const adapter = new PrismaD1(c.env.DB);
