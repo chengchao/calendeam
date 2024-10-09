@@ -7,7 +7,7 @@ export function steamWishlistToIcs(wishlistItems: Record<string, WishlistItem>):
 		const date = fromUnixTime(item.release_date);
 
 		const event = {
-			start: [getYear(date), getMonth(date), getDate(date)] as [number, number, number], // Year, Month, Day, Hour, Minute
+			start: [getYear(date), getMonth(date) + 1, getDate(date)] as [number, number, number], // Year, Month, Day, Hour, Minute
 			title: item.name,
 			description: item.review_desc,
 			duration: { days: 1 },
