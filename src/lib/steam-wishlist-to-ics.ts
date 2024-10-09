@@ -1,10 +1,12 @@
 import * as ics from 'ics';
 import { WishlistItem } from '../types';
 import { fromUnixTime, getDate, getMonth, getYear } from 'date-fns';
+import { convertReleaseStringToDate } from './convert-release-string-to-date';
 
 export function steamWishlistToIcs(wishlistItems: Record<string, WishlistItem>): string {
 	const events: ics.EventAttributes[] = Object.values(wishlistItems).map((item) => {
-		const date = fromUnixTime(item.release_date);
+		// the use of item.release_date is not clear yet, so we use item.release_string instead
+		const date = convertReleaseStringToDate(item.release_string);
 
 		const event = {
 			start: [getYear(date), getMonth(date) + 1, getDate(date)] as [number, number, number], // Year, Month, Day, Hour, Minute
@@ -20,7 +22,6 @@ export function steamWishlistToIcs(wishlistItems: Record<string, WishlistItem>):
 	const { error, value } = ics.createEvents(events);
 
 	if (error) {
-		console.error(error);
 		throw error;
 	}
 

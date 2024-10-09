@@ -19,8 +19,6 @@ import { bearerAuth } from 'hono/bearer-auth';
 import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
-import { WishlistItem, wishlistItemsSchema } from './types';
-import { steamWishlistToIcs } from './lib/steam-wishlist-to-ics';
 import { updateWishlist } from './lib/update-wishlist';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -143,10 +141,11 @@ app.post('/api/steam-profiles', async (c) => {
 
 		return c.json(steamProfile);
 	} catch (e) {
-		console.error(e);
 		if (e instanceof Error) {
+			console.error({ message: e.message });
 			throw new HTTPException(400, { message: e.message, cause: e });
 		} else {
+			console.error(e);
 			throw new HTTPException(400, { message: 'An unknown error occurred', cause: e });
 		}
 	}
