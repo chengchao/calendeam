@@ -20,7 +20,8 @@ import { HTTPException } from 'hono/http-exception';
 import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 import { WishlistItem, wishlistItemsSchema } from './types';
-import { steamWishlistToIcs } from './utils/steamWishlistToIcs';
+import { steamWishlistToIcs } from './lib/steam-wishlist-to-ics';
+import { updateWishlist } from './lib/update-wishlist';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -131,10 +132,12 @@ app.post('/api/steam-profiles', async (c) => {
 	const { userId, steamId } = await c.req.json();
 
 	try {
+		await updateWishlist(steamId, c.env);
 		const steamProfile = await prisma.steamProfile.create({
 			data: {
 				userId,
 				steamId,
+				releaseDateIcsKey: `wishlists/${steamId}.ics`,
 			},
 		});
 
@@ -275,27 +278,7 @@ export default {
 					const { id, userId, steamId } = message.body as Message;
 					console.log('Processing message:', id, userId, steamId);
 
-					const wishlistUrl = `https://store.steampowered.com/wishlist/profiles/${steamId}/wishlistdata?p=0`;
-					console.log('Fetching data from:', wishlistUrl);
-
-					const url = new URL('https://scraping.narf.ai/api/v1');
-					url.searchParams.append('api_key', env.SCRAPING_FISH_API_KEY);
-					url.searchParams.append('url', wishlistUrl);
-					console.log('Fetching data from proxy:', url.toString());
-
-					const response = await fetch(url);
-					if (!response.ok) {
-						const text = await response.text();
-						console.error({ message: `Failed to fetch data for steamId: ${steamId}; ${text}` });
-						return null;
-					}
-
-					const data = await response.json();
-					const items = wishlistItemsSchema.parse(data);
-
-					const ics = steamWishlistToIcs(items);
-					await env.BUCKET.put(`wishlists/${steamId}.ics`, ics);
-
+					await updateWishlist(steamId, env);
 					const steamProfile = await prisma.steamProfile.update({
 						where: { id },
 						data: {
