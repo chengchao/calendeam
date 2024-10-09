@@ -1,7 +1,5 @@
-import { PrismaD1 } from '@prisma/adapter-d1';
 import { wishlistItemsSchema } from '../types';
 import { steamWishlistToIcs } from './steam-wishlist-to-ics';
-import { PrismaClient } from '@prisma/client';
 
 export async function updateWishlist(steamId: string, env: Env): Promise<R2Object> {
 	const wishlistUrl = `https://store.steampowered.com/wishlist/profiles/${steamId}/wishlistdata?p=0`;

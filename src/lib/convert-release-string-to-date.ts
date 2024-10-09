@@ -1,5 +1,7 @@
 import { lastDayOfMonth, lastDayOfQuarter, lastDayOfYear } from 'date-fns';
 
+const invalidReleaseStrings = ['Coming soon', 'To be announced'];
+
 const months: Record<string, number> = {
 	January: 0,
 	February: 1,
@@ -50,12 +52,17 @@ function getMonthFromString(month: string): number {
 
 /**
  * Convert a release string to a Date object.
- * release_string are using the formats: 'Coming soon', 'Q1 2025', 'Jan 4, 2025', 'January 2025', '2025', '27 May, 2010'
+ * release_string are using the formats: 'Coming soon', 'Q1 2025', 'Jan 4, 2025', 'January 2025', '2025', '27 May, 2010', 'To be announced'
  *
  * @param releaseString
  * @returns A Date object
  */
-export function convertReleaseStringToDate(releaseString: string): Date {
+export function convertReleaseStringToDate(releaseString: string): Date | null {
+	// if releaseString is 'To be announced', return last day of the current year
+	if (invalidReleaseStrings.includes(releaseString)) {
+		return null;
+	}
+
 	// if no space in releaseString, it's a year
 	if (!releaseString.includes(' ')) {
 		return lastDayOfYear(new Date(parseInt(releaseString, 10)));
@@ -63,10 +70,6 @@ export function convertReleaseStringToDate(releaseString: string): Date {
 
 	const [first, second] = releaseString.split(', ').slice(0, 2);
 	console.log(`first: ${first}, second: ${second}`);
-
-	if (first === 'Coming') {
-		return lastDayOfYear(new Date());
-	}
 
 	if (first === 'Q1') {
 		return lastDayOfQuarter(new Date(parseInt(second, 10), 0, 1));
