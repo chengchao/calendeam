@@ -1,12 +1,18 @@
 import { lastDayOfMonth, lastDayOfQuarter, lastDayOfYear } from 'date-fns';
 
 /**
+ * Convert a release string to a Date object.
  * release_string are using the formats: 'Coming soon', 'Q1 2025', 'Jan 4, 2025', 'January 2025', '2025'
-
- * @param releaseString 
- * @returns 
+ *
+ * @param releaseString
+ * @returns A Date object
  */
 export function convertReleaseStringToDate(releaseString: string): Date {
+	// if no space in releaseString, it's a year
+	if (!releaseString.includes(' ')) {
+		return lastDayOfYear(new Date(parseInt(releaseString, 10)));
+	}
+
 	const [first, second] = releaseString.split(' ').slice(0, 2);
 
 	if (first === 'Coming') {
