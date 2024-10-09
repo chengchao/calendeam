@@ -1,8 +1,56 @@
 import { lastDayOfMonth, lastDayOfQuarter, lastDayOfYear } from 'date-fns';
 
+const months: Record<string, number> = {
+	January: 0,
+	February: 1,
+	March: 2,
+	April: 3,
+	May: 4,
+	June: 5,
+	July: 6,
+	August: 7,
+	September: 8,
+	October: 9,
+	November: 10,
+	December: 11,
+};
+
+const monthsInAbbreviation: Record<string, number> = {
+	Jan: 0,
+	Feb: 1,
+	Mar: 2,
+	Apr: 3,
+	May: 4,
+	Jun: 5,
+	Jul: 6,
+	Aug: 7,
+	Sep: 8,
+	Oct: 9,
+	Nov: 10,
+	Dec: 11,
+};
+
+/**
+ * Get the month number from a month string.
+ *
+ * @param month
+ * @returns The month number
+ */
+function getMonthFromString(month: string): number {
+	if (month in months) {
+		return months[month];
+	}
+
+	if (month in monthsInAbbreviation) {
+		return monthsInAbbreviation[month];
+	}
+
+	throw new Error(`Unknown month: ${month}`);
+}
+
 /**
  * Convert a release string to a Date object.
- * release_string are using the formats: 'Coming soon', 'Q1 2025', 'Jan 4, 2025', 'January 2025', '2025'
+ * release_string are using the formats: 'Coming soon', 'Q1 2025', 'Jan 4, 2025', 'January 2025', '2025', '27 May, 2010'
  *
  * @param releaseString
  * @returns A Date object
@@ -35,42 +83,21 @@ export function convertReleaseStringToDate(releaseString: string): Date {
 		return lastDayOfQuarter(new Date(parseInt(second, 10), 9, 1));
 	}
 
-	const months: Record<string, number> = {
-		January: 0,
-		February: 1,
-		March: 2,
-		April: 3,
-		May: 4,
-		June: 5,
-		July: 6,
-		August: 7,
-		September: 8,
-		October: 9,
-		November: 10,
-		December: 11,
-	};
-
-	if (first in months) {
-		return lastDayOfMonth(new Date(parseInt(second, 10), months[first], 1));
+	// if , is in the first string, it's a date
+	if (first.includes(',')) {
+		const [firstPart, secondPart] = first.split(',');
+		// if firstPart is a number, it's a day
+		if (!isNaN(parseInt(firstPart, 10))) {
+			const [day, month] = [firstPart, secondPart];
+			return new Date(parseInt(second, 10), getMonthFromString(month), parseInt(day, 10));
+		} else {
+			const [month, day] = [firstPart, secondPart];
+			return new Date(parseInt(second, 10), getMonthFromString(month), parseInt(day, 10));
+		}
 	}
 
-	const monthsInAbbreviation: Record<string, number> = {
-		Jan: 0,
-		Feb: 1,
-		Mar: 2,
-		Apr: 3,
-		May: 4,
-		Jun: 5,
-		Jul: 6,
-		Aug: 7,
-		Sep: 8,
-		Oct: 9,
-		Nov: 10,
-		Dec: 11,
-	};
-	const [month, day] = first.split(',').splice(0, 2);
-	if (month in monthsInAbbreviation) {
-		return new Date(parseInt(second, 10), monthsInAbbreviation[month], parseInt(day, 10));
+	if (first in months) {
+		return lastDayOfMonth(new Date(parseInt(second, 10), getMonthFromString(first), 1));
 	}
 
 	throw new Error(`Unknown release string: ${releaseString}`);
