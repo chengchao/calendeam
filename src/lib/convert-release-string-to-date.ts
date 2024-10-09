@@ -89,13 +89,20 @@ export function convertReleaseStringToDate(releaseString: string): Date {
 		const [firstPart, secondPart] = first.split(' ');
 		console.log(`firstPart: ${firstPart}, secondPart: ${secondPart}`);
 
-		// if firstPart is a number, it's a day
-		if (!isNaN(parseInt(firstPart, 10))) {
-			const [day, month] = [firstPart, secondPart];
-			return new Date(parseInt(second, 10), getMonthFromString(month), parseInt(day, 10));
-		} else {
-			const [month, day] = [firstPart, secondPart];
-			return new Date(parseInt(second, 10), getMonthFromString(month), parseInt(day, 10));
+		try {
+			// if firstPart is a number, it's a day
+			if (!isNaN(parseInt(firstPart, 10))) {
+				const [day, month] = [firstPart, secondPart];
+				return new Date(parseInt(second, 10), getMonthFromString(month), parseInt(day, 10));
+			} else {
+				const [month, day] = [firstPart, secondPart];
+				return new Date(parseInt(second, 10), getMonthFromString(month), parseInt(day, 10));
+			}
+		} catch (e) {
+			if (e instanceof Error) {
+				console.error({ message: e.message });
+				throw new Error(`Failed to parse date: ${releaseString}, error: ${e.message}`);
+			}
 		}
 	}
 
