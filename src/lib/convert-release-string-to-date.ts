@@ -59,7 +59,7 @@ function getMonthFromString(month: string): number {
  */
 export function convertReleaseStringToDate(releaseString: string): Date | null {
 	// if releaseString is invalid, return last day of the current year
-	if (invalidReleaseStrings.includes(releaseString)) {
+	if (invalidReleaseStrings.includes(releaseString) || releaseString === '') {
 		return null;
 	}
 

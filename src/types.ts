@@ -7,7 +7,7 @@ export const wishlistItemSchema = z.object({
 	review_desc: z.string(),
 	reviews_total: z.string(),
 	reviews_percent: z.number(),
-	release_date: z.union([z.string(), z.number()]).pipe(z.coerce.number()),
+	release_date: z.union([z.string(), z.number()]).nullable().pipe(z.coerce.number()),
 	release_string: z.string(),
 	platform_icons: z.string(),
 	subs: z.array(
