@@ -2,7 +2,13 @@ import { wishlistItemsSchema } from '../types';
 import { steamWishlistToIcs } from './steam-wishlist-to-ics';
 
 export async function updateWishlist(steamId: string, env: Env): Promise<R2Object> {
-	const wishlistUrl = `https://store.steampowered.com/wishlist/profiles/${steamId}/wishlistdata?p=0`;
+	let wishlistUrl: string;
+	if (isNaN(Number(steamId))) {
+		wishlistUrl = `https://store.steampowered.com/wishlist/id/${steamId}/wishlistdata?p=0`;
+	} else {
+		wishlistUrl = `https://store.steampowered.com/wishlist/profiles/${steamId}/wishlistdata?p=0`;
+	}
+
 	console.log('Fetching data from:', wishlistUrl);
 
 	const url = new URL('https://scraping.narf.ai/api/v1');

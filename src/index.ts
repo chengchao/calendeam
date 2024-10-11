@@ -25,12 +25,14 @@ import { convertReleaseStringToDate } from './lib/convert-release-string-to-date
 const app = new Hono<{ Bindings: Env }>();
 
 // app.get('/test', async (c) => {
-// const dates = ['Coming soon', 'Q1 2025', 'Jan 4, 2025', 'January 2025', '2025', '27 May, 2010', 'To be announced'].map((v) =>
-// 	convertReleaseStringToDate(v)
-// );
-// const text = dates.map((v) => v?.toString()).join(',\n');
-// return c.text(text);
+// 	const dates = ['Coming soon', 'Q1 2025', 'Jan 4, 2025', 'January 2025', '2025', '27 May, 2010', 'To be announced'].map((v) =>
+// 		convertReleaseStringToDate(v)
+// 	);
+// 	const text = dates.map((v) => v?.toString()).join(',\n');
+// 	return c.text(text);
 // 	await updateWishlist('76561198282642306', c.env);
+// 	return c.text('hello');
+// 	await updateWishlist('LovelyWatermelon', c.env);
 // 	return c.text('hello');
 // });
 
