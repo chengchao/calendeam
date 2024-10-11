@@ -117,7 +117,7 @@ export function convertReleaseStringToDate(releaseString: string): Date | null {
 		return lastDayOfQuarter(new Date(parseInt(second, 10), 9, 1));
 	}
 
-	if (first in months) {
+	if (first in months || first in monthsInAbbreviation) {
 		return lastDayOfMonth(new Date(parseInt(second, 10), getMonthFromString(first), 1));
 	}
 
